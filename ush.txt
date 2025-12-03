@@ -1,0 +1,383 @@
+AWS :
+
+### steps
+
+1. go to modules
+2. select the launch aws learner lab
+3. then start lab
+4. wait till aws is green then click on it 
+5. go to EC2 and then launch instance 
+6. give name tag, then choose ubuntu, then generate a key pair, then check the firewall add anywhere all traffic and then launch
+7. once the instance is created, click on the instance and then click on connect
+8. int the cli tht pops up type the following commands
+    1. sudo su
+    2. sudo apt-get update
+    3. sudo apt-get install docker.io
+    4. sudo docker --version
+    5. sudo docker images
+    6. sudo docker ps
+    7. git clone http of the maven web application
+    8. cd folder name
+    9. ls
+    10. nano Dockerfile
+    11. sudo docker build -t img1  .
+    12. sudo docker run -d -p 8080:8080 img1
+    13. copy the public ip
+    14. got to incog ip:portnumber
+    15. exit
+
+
+FROM tomcat:9.0
+
+RUN rm -rf /usr/local/tomcat/webapps/*
+
+COPY target/*.war /usr/local/tomcat/webapps/ROOT.war
+
+CMD ["catalina.sh", "run"]
+
+
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+COPY target/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
+https://github.com/Edigirala-Neksha/se-lab2-java-maven.git
+
+
+-----------------------------------------------------------------------------------------------
+
+
+
+NAGIOS :
+
+
+docker pull jasonrivers/nagios
+docker run -d -p 3000:80 jasonrivers/nagios
+
+username : nagiosadmin
+password : nagios
+
+---------------------------------------------------------------------------------------------------
+
+
+KUBERNETES - MINIKUBE :
+
+
+### steps
+
+1. open your docker desktop
+2. minikube start
+    1. if it doesnt work run these
+    2. minikube start --driver=hyperv
+    3. minikube start --driver=docker
+3. minikube start
+4. minikube status
+5. kubectl create deployment mynginx --image=nginx ****or**** if already created : kubectl set image deployment/myngnix nginx=nginx:latest
+6. kubectl get deployments
+7. kubectl get pods
+8. kubectl describe pods	
+9. kubectl expose deployment mynginx --type=NodePort --port=80 --target-port=80
+10. kubectl get service mynginx
+11. kubectl port-forward svc/mynginx 8081:80
+12. kubectl get deployment
+13. kubectl scale deployment mynginx --replicas=4
+14. kubectl get pods
+15. kubectl delete deployment mynginx
+16. kubectl delete service mynginx
+17. minikube stop
+
+--------------------------------------------------------------------------------------------------------
+
+
+JENKINS :
+
+
+script pipeline: 
+
+
+build periodically - schedule : H * * * *
+
+
+pipeline {
+    agent any
+    tools{
+        maven 'MAVEN_HOME'
+    }
+    stages {
+        stage('git repo & clean') {
+            steps {
+                //bat "rmdir  /s /q mavenjava"
+                bat "git clone https://github.com/adityapanyala/myjavaapp.git"
+                bat "mvn clean -f myjavaapp"
+            }
+        }
+        stage('install') {
+            steps {
+                bat "mvn install -f myjavaapp" 
+            }
+        }
+        stage('test') {
+            steps {
+                bat "mvn test -f myjavaapp"
+            }
+        }
+        stage('package') {
+            steps {
+                bat "mvn package -f myjavaapp"
+            }
+        }
+    }
+}
+
+
+*****or****** 
+
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'MAVEN_HOME'
+    }
+
+    stages {
+
+        stage('git repo & clean') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/archanareddyse/mavenjava.git'
+            }
+        }
+
+        stage('install') {
+            steps {
+                bat "mvn clean install"
+            }
+        }
+
+        stage('test') {
+            steps {
+                bat "mvn test"
+            }
+        }
+
+        stage('package') {
+            steps {
+                bat "mvn package"
+            }
+        }
+    }
+}
+
+
+
+----------------------------------------------------
+
+
+
+3 pipeline:
+
+build pipeline plugin
+copy artifact plugin
+
+1st part:
+
+build steps: 
+invoke -> clean
+invoke -> install
+
+postbuild:
+archive -> **/*
+build other
+
+2nd part:
+
+delete workspace before
+
+build steps:
+copy artifacts -> **/*
+invoke -> test
+
+postbuild:
+
+archive -> **/*
+build other
+
+3rd part:
+
+delete workspace before
+
+build steps:
+copy artifacts -> **/*
+
+postbuild:
+**/*.war
+Webpath
+tomcat9.0 -> credentials 
+
+
+----------------------------------------------
+
+
+JENKINS WEBHOOKS
+
+ngrok http (Jenkins port number)
+add that url to webhooks in repo settings and add payload url with ngrok forwarded url+/github-webhook/ and content type to application/json
+in Jenkins build project, select GitHub hook trigger 
+
+-----------------------------------------------
+
+
+JENKINS EMAIL
+
+google account -> generate app password
+install email extension plugin
+manage Jenkins -> configure system -> email notification section:
+smtp server : smtp.google.com, use smtp auth, username:email, password:app password, use ssl, smtp port : 465, reply to address: email, test config with email
+extended email notification system:
+smtp server:smtp.google.com, smtp port: 465, use ssl, credentials: gmail and app password, default content type: text/html, triggers
+
+select job in Jenkins -> add post build action : editable email notification -> add email in project recipient list -> content type and save
+
+------------------------------------------------------------------
+
+SSH-Keygen: ssh-keygen -t rsa -C adityapanyalastudy@gmail.com
+
+git:
+
+config :
+
+git config --global user.name "Your Name"
+git config --global user.email "youremail@example.com"
+git config --list
+
+repo setup:
+
+git remote -v 
+git remote add origin <repo_url>
+git remote remove origin
+git remote set-url origin <new_url>
+
+staging and commit:
+
+git status → Check file states.
+git add file.txt → Stage file.
+git add . → Stage everything.
+git reset file.txt → Unstage file but keep changes.
+git commit -m "message" → Commit staged changes.
+git commit --amend -m "new message" → Fix last commit message
+
+fetching and pulling:
+
+ git push origin main → Push local commits.
+ git push -u origin main → Push & set upstream (first time).
+ git pull origin main → Fetch + merge remote changes.
+ git fetch origin → Download without merging.
+ git fetch origin branch-name → Fetch specific branch.
+ git rebase origin/main → Reapply local commits on top of remote.
+
+
+branching:
+
+ git branch → List branches.
+ git branch branch-name → Create branch.
+ git checkout branch-name → Switch branch.
+ git checkout -b new-branch → Create & switch.
+ git branch -d branch-name → Delete branch (safe).
+ git branch -D branch-name → Force delete branch.
+ git branch -r → List remote branches.
+ git branch --merged → See merged branches.
+ git remote prune origin → Remove deleted remote branches
+
+
+merging and conflicts:
+
+ git merge branch-name → Merge into current branch.
+
+ Conflict resolution: open file, fix markers (
+ bash
+ git add file
+ git commit
+ <<<<<<< / 
+======= / 
+>>>>>>> ), then:
+
+ git stash → Save changes temporarily.
+ git stash apply → Restore stashed changes
+
+
+undoing:
+
+ git restore file.txt → Undo changes before staging.
+ git reset file.txt → Remove from staging.
+ git revert <commit_hash> → Create new commit that undoes a commit.
+ git reflog → See history of HEAD, recover deleted branch.
+
+
+history:
+
+ git log → Full commit history.
+ git log --oneline → Short history.
+ git show <commit_hash> → Show details of commit.
+ git diff → Show unstaged changes.
+git blame file.txt → See who changed each line.
+
+
+
+git diff > mychanges.patch
+git diff --cached > mychanges.patch
+git format-patch -1 <commit-hash>
+git format-patch -1 HEAD
+git apply mychanges.patch
+git am < mychanges.patch
+
+
+-----------------------------------------
+
+
+docker:
+
+FROM tomcat:9.0
+COPY ./target/name.war /usr/local/tomcat/webapps/ROOT.war
+CMD ["catalina.sh","run"]
+
++++++++++++++++++++++++
+
+version: "3.9"
+ 
+services:
+  web:
+    image: your image
+    ports:
+      - "8085:8080"
+    depends_on:
+      - mysql   
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: university
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+++++++++++++++++++++++++
+
+
+docker build -t oles-app .
+docker run -d -p 8088:8080 --name oles-ooga oles-app
+
+docker pull
+docker run -it
+
+docker-compose up -d
+
+docker exec -it oles-mysql-1 mysql -u root -p
+
+docker tag oles-app epicdino/oles-app 
+docker push epicdino/oles-app
+
+
+
